@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Form</title>
+  </head>
+  <body>
+    <h1>Employee Form</h1>
+    <form id="employeeForm">
+      <label for="empId">Emp ID:</label>
+      <input type="text" id="empId" name="empId" required />
+      <br />
+      <label for="empName">Emp Name:</label>
+      <input type="text" id="empName" name="empName" required />
+      <br />
+      <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+    <br />
+    <button type="button" onclick="getAllEmployees()">Get All Employees</button>
+
+    <!-- Container to display employee details -->
+    <div id="employeeDetails"></div>
+
+    <script>
+      function submitForm() {
+        const empid = document.getElementById("empId").value;
+        const name = document.getElementById("empName").value;
+
+        fetch(
+          "https://taxzotgas1.execute-api.us-east-1.amazonaws.com/dev/employees/addemp",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ empid, name }),
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function getAllEmployees() {
+        fetch(
+          "https://taxzotgas1.execute-api.us-east-1.amazonaws.com/dev/employees/getemps",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            const employees = data.employees; // Extract the 'employees' array
+
+            if (Array.isArray(employees)) {
+              // Display details of each employee on the page
+              const employeeDetailsContainer =
+                document.getElementById("employeeDetails");
+              employeeDetailsContainer.innerHTML = ""; // Clear previous content
+
+              employees.forEach((employee) => {
+                const detailsElement = document.createElement("p");
+                detailsElement.textContent = `Emp ID: ${employee.empid}, Emp Name: ${employee.name}`;
+                employeeDetailsContainer.appendChild(detailsElement);
+              });
+            } else {
+              console.error("Error: 'employees' array not found in the data");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
+</html>
